@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(
-    ['whisper_gui_v2.py'],
+    ['whisper_gui.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -24,7 +24,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='whisper_gui_v2',
+    name='whisper_gui',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -44,5 +44,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='whisper_gui_v2',
+    name='whisper_gui',
 )
