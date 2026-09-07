@@ -5,6 +5,8 @@ on: [push]
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
     - name: 取得程式碼
@@ -15,9 +17,10 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: 升級 pip
+    - name: 升級 pip 與基本工具
       run: |
         python -m pip install --upgrade pip
+        pip install --upgrade setuptools wheel
 
     - name: 安裝 PyTorch (CPU版)
       run: |
@@ -29,7 +32,7 @@ jobs:
 
     - name: 開始打包成 EXE
       run: |
-        pyinstaller --noconsole --onefile --collect-all whisper whisper_gui.py
+        pyinstaller --noconsole --onefile --collect-all whisper --collect-all torch whisper_gui.py
 
     - name: 上傳打包好的 EXE 檔案
       uses: actions/upload-artifact@v4
