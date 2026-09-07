@@ -15,12 +15,16 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: 修正環境與升級 pip
+    - name: 升級 pip 與基本工具
       run: |
         python -m pip install --upgrade pip
         pip install --upgrade setuptools wheel
 
-    - name: 安裝相依套件與 PyInstaller
+    - name: 安裝 PyTorch (CPU版) 與相依套件
+      run: |
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+    - name: 安裝 Whisper 與 PyInstaller
       run: |
         pip install openai-whisper pyinstaller
 
