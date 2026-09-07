@@ -15,22 +15,21 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: 升級 pip 與基本工具
+    - name: 升級 pip
       run: |
         python -m pip install --upgrade pip
-        pip install --upgrade setuptools wheel
 
-    - name: 安裝 PyTorch (CPU版) 與相依套件
+    - name: 安裝 PyTorch (CPU版)
       run: |
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
-    - name: 安裝 Whisper 與 PyInstaller
+    - name: 安裝 Whisper 與打包工具
       run: |
         pip install openai-whisper pyinstaller
 
     - name: 開始打包成 EXE
       run: |
-        pyinstaller --noconsole --onefile whisper_gui.py
+        pyinstaller --noconsole --onefile --collect-all whisper whisper_gui.py
 
     - name: 上傳打包好的 EXE 檔案
       uses: actions/upload-artifact@v4
