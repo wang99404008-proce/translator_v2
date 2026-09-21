@@ -1,4 +1,4 @@
-name: Build Whisper App
+name: Build Media Converter App
 
 on:
   push:
@@ -25,10 +25,10 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --noconsole --collect-all whisper --collect-all torch --name="MultiLanguageWhisper" whisper_app.py
+          pyinstaller --noconsole --onefile --name="MediaConverterTool" media_converter_app.py
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Windows-Whisper-App
-          path: dist/MultiLanguageWhisper/
+          name: Windows-MediaConverter-Exe
+          path: dist/*.exe
