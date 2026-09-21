@@ -1,4 +1,4 @@
-name: Build Windows EXE
+name: Build Whisper App
 
 on:
   push:
@@ -6,34 +6,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
 
     steps:
-    - name: 檢出程式碼 (Checkout)
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: 設定 Python 環境
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: 升級 pip 與安裝打包工具
-      run: |
-        python -m pip install --upgrade pip
-        pip install pyinstaller
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: 安裝 PyTorch (CPU版) 與 Whisper
-      run: |
-        pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-        pip install openai-whisper
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --noconsole --onefile --name="MultiLanguageWhisper" whisper_app.py
 
-    - name: 執行 PyInstaller 打包
-      run: |
-        pyinstaller build.spec --clean
-
-    - name: 上傳打包好的執行檔
-      uses: actions/upload-artifact@v4
-      with:
-        name: whisper_gui_windows
-        path: dist/whisper_gui.exe
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-Whisper-Exe
+          path: dist/*.exe
