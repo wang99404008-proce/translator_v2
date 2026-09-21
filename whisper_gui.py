@@ -1,14 +1,16 @@
-import tkinter as tk
-from tkinter import filedialog, messagebox
-import whisper
 import os
+import sys
 import threading
 import json
 import re
 from pathlib import Path
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import whisper
 
-# 強制指向 Homebrew
-os.environ["PATH"] += os.pathsep + "/opt/homebrew/bin"
+# 僅在非 Windows 環境下加入 Homebrew 路徑
+if sys.platform != "win32":
+    os.environ["PATH"] += os.pathsep + "/opt/homebrew/bin"
 
 def format_time(seconds):
     hours, minutes = divmod(int(seconds), 3600)
@@ -20,7 +22,7 @@ class WhisperAppModern:
     def __init__(self, root):
         self.root = root
         self.root.title("多語言語音判讀器")
-        self.root.geometry("650x700") # 稍微拉長高度以容納按鈕區
+        self.root.geometry("650x700")
         self.root.configure(bg="#f4f4f9")
         self.raw_text = ""
         self.is_processing = False
@@ -39,7 +41,7 @@ class WhisperAppModern:
 
         # 開始辨識按鈕
         self.btn_select = tk.Label(root, text="📂 選擇影片並開始辨識", bg="#333333", fg="white", 
-                                    font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
+                                     font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
         self.btn_select.pack(pady=15)
         self.btn_select.bind("<Button-1>", lambda e: self.process_video())
 
@@ -56,7 +58,7 @@ class WhisperAppModern:
 
         # 下載 SRT 按鈕
         self.btn_save_srt = tk.Label(self.frame_buttons, text="💾 下載保存 SRT", bg="#555555", fg="#aaaaaa", 
-                                      font=("Arial", 12, "bold"), padx=15, pady=8)
+                                     font=("Arial", 12, "bold"), padx=15, pady=8)
         self.btn_save_srt.pack(side=tk.LEFT, padx=10)
 
         # 下載 JSON 按鈕
@@ -66,16 +68,17 @@ class WhisperAppModern:
 
     def process_video(self):
         if self.is_processing: return
-        file_path = filedialog.askopenfilename(filetypes=[("Video files", "*.mp4 *.mov *.avi *.mkv")])
+        file_path = filedialog.askopenfilename(filetypes=[("Video/Audio files", "*.mp4 *.mov *.avi *.mkv *.mp3 *.wav")])
         if not file_path: return
         
         self.is_processing = True
-        self.status_label.config(text="正在分析語音，這可能需要幾分鐘...", fg="#d9534f")
+        self.status_label.config(text="正在分析語音，首次執行會下載模型，請稍候...", fg="#d9534f")
         threading.Thread(target=self.run_whisper, args=(file_path,), daemon=True).start()
 
     def run_whisper(self, file_path):
         try:
-            model = whisper.load_model("small") #
+            # 使用小模型 (small) 兼顧速度與準確度
+            model = whisper.load_model("small")
             res = model.transcribe(file_path, verbose=False)
             
             self.raw_text = ""
@@ -92,11 +95,9 @@ class WhisperAppModern:
         self.status_label.config(text="辨識完成！請檢查文字並下載。", fg="#28a745")
         self.is_processing = False
         
-        # 啟用並美化 SRT 下載按鈕
         self.btn_save_srt.config(bg="#333333", fg="white", cursor="hand2")
         self.btn_save_srt.bind("<Button-1>", lambda e: self.save_file("srt"))
         
-        # 啟用並美化 JSON 下載按鈕
         self.btn_save_json.config(bg="#333333", fg="white", cursor="hand2")
         self.btn_save_json.bind("<Button-1>", lambda e: self.save_file("json"))
 
@@ -111,7 +112,6 @@ class WhisperAppModern:
         elif mode == "json":
             file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
             if file_path:
-                # 解析 SRT 格式為 JSON
                 data = []
                 blocks = re.split(r'\n\n+', self.raw_text.strip())
                 for block in blocks:
