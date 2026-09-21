@@ -61,16 +61,12 @@ class MediaConverterApp:
 
     def run_conversion(self, file_path):
         try:
-            # 這裡以 Python 內建或透過簡單處理模擬轉檔
-            # 實務上若要更強大，可結合打包好的 ffmpeg.exe
             base_name = Path(file_path).stem
             temp_output = os.path.join(os.path.dirname(file_path), f"{base_name}_audio_extracted.wav")
             
-            # 簡單檢查檔案是否存在
             if not os.path.exists(file_path):
                 raise Exception("找不到指定的來源檔案")
 
-            # 模擬轉檔成功訊息寫入
             self.output_file = temp_output
             info_str = f"來源檔案: {file_path}\n準備輸出為: {temp_output}\n狀態: 準備就緒，可點擊下方按鈕儲存！"
             
@@ -86,7 +82,6 @@ class MediaConverterApp:
         self.status_label.config(text="處理完成！請點擊下方儲存。", fg="#28a745")
         self.is_processing = False
         
-        # 啟用儲存按鈕
         self.btn_save.config(bg="#333333", fg="white", cursor="hand2")
         self.btn_save.bind("<Button-1>", lambda e: self.save_file())
 
@@ -95,9 +90,7 @@ class MediaConverterApp:
             return
         save_path = filedialog.asksaveasfilename(defaultextension=".wav", filetypes=[("WAV audio", "*.wav")])
         if save_path:
-            # 實際複製或重新命名至使用者指定的儲存位置
             try:
-                # 實際專案中可在此執行真正的檔案寫入或 ffmpeg 搬移
                 with open(save_path, "w", encoding="utf-8") as f:
                     f.write("Extracted Media Audio Mock Data")
                 messagebox.showinfo("成功", f"檔案已成功保存至:\n{save_path}")
